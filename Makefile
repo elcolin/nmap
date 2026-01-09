@@ -5,7 +5,7 @@ EXEC    = ft_nmap
 SRCDIR  = src
 OBJDIR  = obj
 
-SRCS    = $(addprefix $(SRCDIR)/, main.c)
+SRCS    = $(addprefix $(SRCDIR)/, main.c arg.c)
 OBJS    = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
 
 all: $(EXEC)
