@@ -4,7 +4,9 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
         printHelpAndExit();
-    findHelpArgument(++argv, --argc);
+    ++argv;
+    findHelpArgument((const char **)argv, --argc);
     Args inputArgs = {};
-    scanArguments(argc, argv, &inputArgs);
+    scanArguments(argc, (const char **)argv, &inputArgs);
+    return 0;
 }

@@ -12,6 +12,8 @@
 #define MAX_NUMBER_OF_THREADS 250
 #define MAX_PORT_NUMBER 65535
 
+#define NUMBER_OF_SCAN_TYPES 6
+
 typedef enum {
     SYN, 
     NONE,// NULL ?
@@ -49,9 +51,9 @@ typedef enum {
     SCAN
 } Options;
 
-void findHelpArgument(char **argv, int argc);
+void findHelpArgument(const char **argv, const int argc);
 void printHelpAndExit();
-void handleOption(__uint8_t option, char *str, Args *args);
-void scanArguments(int argc, char **argv, Args *args);
+void handleOption(const __uint8_t option, const char *str, Args *args);
+void scanArguments(const int argc, const char **argv, Args *args);
 
 #endif

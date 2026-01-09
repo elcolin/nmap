@@ -1,6 +1,6 @@
 #include "arg.h"
 
-void findHelpArgument(char **argv, int argc)
+void findHelpArgument(const char **argv, const int argc)
 {
     for (int i = 0; i < argc; i++)
     {
@@ -20,7 +20,7 @@ void triggerErrorNoFreeingIf(const bool condition, const char *msg, const char *
 
 const char *substr[] = {"--ports", "--file", "--ip", "--speedup", "--scan"};
 
-void scanArguments(int argc, char **argv, Args *args)
+void scanArguments(const int argc, const char **argv, Args *args)
 {
     const char *funcName = "scanArguments";
     for (int argIdx = 0; argIdx < argc; argIdx++)
@@ -36,7 +36,7 @@ void scanArguments(int argc, char **argv, Args *args)
     }
 }
 
-bool argumentIsValid(char *arg)
+bool argumentIsValid(const char *arg)
 {
     if (arg == NULL)
         return FALSE;
@@ -46,7 +46,7 @@ bool argumentIsValid(char *arg)
     return TRUE;
 }
 
-bool strIsDigit(char *str)
+bool strIsDigit(const char *str)
 {
     const size_t strLength = strlen(str);
     if (!strLength)
@@ -59,12 +59,13 @@ bool strIsDigit(char *str)
     return TRUE;
 }
 
-void handleOption(__uint8_t option, char *str, Args *args)
+void handleOption(const __uint8_t option, const char *str, Args *args)
 {
     triggerErrorNoFreeingIf(argumentIsValid(str) == FALSE, "argumentIsValid", "Argument format isn't correct.\n");
     switch (option)
     {
         case PORTS:
+        //refactor SPEEDUP ?
             triggerErrorNoFreeingIf(strIsDigit(str) == FALSE, "strIsDigit", "Argument isn't only digits.\n");
             int portNumber = atoi(str);
             triggerErrorNoFreeingIf(portNumber > MAX_PORT_NUMBER, "handleOption", "Port number is above max range.\n");
@@ -81,6 +82,16 @@ void handleOption(__uint8_t option, char *str, Args *args)
             args->numberOfThreads = (__uint8_t) threadNumber;
         break;
         case SCAN:
+            const char *scanType[] = {"SYN", "NULL", "ACK", "FIN", "XMAS", "UDP"};
+            for (int scanIdx = 0;  scanIdx < NUMBER_OF_SCAN_TYPES; scanIdx++)
+            {
+                if (!strcmp(scanType[scanIdx], str))
+                {
+                    args->scanType = scanIdx;
+                    return;
+                }
+            }
+            triggerErrorNoFreeingIf(TRUE, "handleOPtion", "Scan option must have one of the following types : SYN, NULL, ACK, FIN, XMAS, UDP.\n");
         break;
         default:
         break;
