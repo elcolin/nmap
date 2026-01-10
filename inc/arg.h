@@ -7,12 +7,14 @@
 #include <string.h> //strcmp
 #include <ctype.h> // isdigit
 #include "utils.h"
+#include "addr.h"
 
 #define DEFAULT_NUMBER_OF_THREADS 0
 #define MAX_NUMBER_OF_THREADS 250
 #define MAX_PORT_NUMBER 65535
 
 #define NUMBER_OF_SCAN_TYPES 6
+#define NUMBER_OF_OPTIONS 5
 
 typedef enum {
     SYN, 
@@ -26,22 +28,16 @@ typedef enum {
 } ScanType;
 
 typedef struct {
-    bool        selectedOptions[6];
-
-    // bool        specificNumberOfPorts;
-    __uint16_t  ports;
-    // bool        usingIp;
-    char        *ipArgument;
-    // bool        usingFile;
-    char        *fileArgument;
-    // bool        specificNumberOfThreads;
-    __uint8_t   numberOfThreads;
-    // bool        specificScanType;
-    __uint8_t   scanType;
+    __uint16_t          ports;
+    char                *ipArgument;
+    struct sockaddr_in  ip_addr;
+    char                *fileArgument;
+    int                 fdIp;
+    __uint8_t           numberOfThreads;
+    __uint8_t           scanType;
     
 } Args;
 
-#define NUMBER_OF_OPTIONS 5
 
 typedef enum {
     PORTS,

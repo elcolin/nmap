@@ -22,18 +22,22 @@ const char *substr[] = {"--ports", "--file", "--ip", "--speedup", "--scan"};
 
 void scanArguments(const int argc, const char **argv, Args *args)
 {
-    const char *funcName = "scanArguments";
+    bool destinationIsSet = FALSE;
     for (int argIdx = 0; argIdx < argc; argIdx++)
     {
         for (int optionIdx = 0; optionIdx < NUMBER_OF_OPTIONS; optionIdx++)
         {
             if (!strcmp(argv[argIdx], substr[optionIdx]))
             {
-                triggerErrorNoFreeingIf(argIdx + 1 >= argc, funcName, "Option requires values pos(\n");
+                triggerErrorNoFreeingIf(argIdx + 1 >= argc, "scanArguments", "Option requires values pos(\n");
                 handleOption(optionIdx, argv[argIdx + 1], args);
+                if (optionIdx == IP || optionIdx == NFILE)
+                    destinationIsSet = TRUE;
+
             }
         }
     }
+    triggerErrorNoFreeingIf(destinationIsSet == FALSE, "scanArguments", "No IP or file found.\n");
 }
 
 bool argumentIsValid(const char *arg)
@@ -59,6 +63,9 @@ bool strIsDigit(const char *str)
     return TRUE;
 }
 
+const char *scanType[] = {"SYN", "NULL", "ACK", "FIN", "XMAS", "UDP"};
+
+
 void handleOption(const __uint8_t option, const char *str, Args *args)
 {
     triggerErrorNoFreeingIf(argumentIsValid(str) == FALSE, "argumentIsValid", "Argument format isn't correct.\n");
@@ -74,6 +81,7 @@ void handleOption(const __uint8_t option, const char *str, Args *args)
         case NFILE:
         break;
         case IP:
+            triggerErrorNoFreeingIf(setDestinationAddress(&args->ip_addr, str) == FAILURE, "handleOption", "Incorrect destination.\n");
         break;
         case SPEEDUP:
             triggerErrorNoFreeingIf(strIsDigit(str) == FALSE, "strIsDigit", "Argument isn't only digits.\n");
@@ -82,7 +90,6 @@ void handleOption(const __uint8_t option, const char *str, Args *args)
             args->numberOfThreads = (__uint8_t) threadNumber;
         break;
         case SCAN:
-            const char *scanType[] = {"SYN", "NULL", "ACK", "FIN", "XMAS", "UDP"};
             for (int scanIdx = 0;  scanIdx < NUMBER_OF_SCAN_TYPES; scanIdx++)
             {
                 if (!strcmp(scanType[scanIdx], str))
