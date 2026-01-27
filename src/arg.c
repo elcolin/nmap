@@ -27,6 +27,14 @@ int openFile(const char *fileName)
     return fd;
 }
 
+/*
+ * scanArguments travels arguments in search of mandatory (ip / file) and optional options regarding nmap.
+ *
+ * Parameters :
+ *  argc - The number of total arguments.
+ *  argv - Arguments passed through the command line.
+ *  args - Empty structure meant to be filed by scanArguments with the retrieved information.
+ */
 void scanArguments(const int argc, const char **argv, Args *args)
 {
     int destinationSetTo = COUNT_OPT;
