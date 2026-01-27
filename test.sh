@@ -50,6 +50,7 @@ run_test "--file test.sh "            0 --file test.sh
 run_test "--ip (invalid) 8.8.8.8 --ip 8.8.8.8"          1 --ip 8.8.8.8 --ip 8.8.8.8
 run_test "--ip (invalid) 8.8.8.8 --file test.sh"      1 --ip 8.8.8.8 --file test.sh
 run_test "--file (invalid) test.sh --file test.sh"      1 --file test.sh --file test.sh
-
+run_test "--file test.sh"               0 --file test.sh
+run_test "--file notAFile"              1 --file notAFile
 
 run_test "--ports 1 $default_ip --speedup 250 --scan SYN" 0 --ports 1 $default_ip --speedup 250 --scan SYN

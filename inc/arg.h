@@ -1,7 +1,8 @@
 #ifndef ARG_H
 #define ARG_H
 
-
+#include <errno.h>
+#include <fcntl.h> // open
 #include <stdio.h> // printf, exit
 #include <stdlib.h> //EXIT_X
 #include <string.h> //strcmp

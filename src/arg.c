@@ -13,32 +13,41 @@ void triggerErrorNoFreeingIf(const bool condition, const char *msg, const char *
 {
     if (condition)
     {
-        fprintf(stderr, "%s: %s", msg, reason);
+        fprintf(stderr, "%s: %s\n", msg, reason);
         exit(EXIT_FAILURE);
     }
 }
 
 const char *substr[] = {"--ports", "--file", "--ip", "--speedup", "--scan"};
 
+int openFile(const char *fileName)
+{
+    int fd = open(fileName, O_RDONLY);
+    triggerErrorNoFreeingIf(fd < 0, "openFile", strerror(errno));
+    return fd;
+}
+
 void scanArguments(const int argc, const char **argv, Args *args)
 {
-    int destinationSet = COUNT_OPT;
+    int destinationSetTo = COUNT_OPT;
     for (int argIdx = 0; argIdx < argc; argIdx++)
     {
         for (int optionIdx = 0; optionIdx < NUMBER_OF_OPTIONS; optionIdx++)
         {
             if (!strcmp(argv[argIdx], substr[optionIdx]))
             {
-                triggerErrorNoFreeingIf(argIdx + 1 >= argc, "scanArguments", "Option requires values pos(\n");
+                triggerErrorNoFreeingIf(argIdx + 1 >= argc, "scanArguments", "Option requires values pos(");
                 handleOption(optionIdx, argv[argIdx + 1], args);
                 if (optionIdx == IP || optionIdx == NFILE)
-                    destinationSet = optionIdx;
+                    destinationSetTo = optionIdx;
                 break;
             }
         }
         // TODO add error if arg doesn't exist
     }
-    triggerErrorNoFreeingIf(destinationSet == COUNT_OPT, "scanArguments", "No IP or file found.\n");
+    triggerErrorNoFreeingIf(destinationSetTo == COUNT_OPT, "scanArguments", "No IP or file found.");
+    if (destinationSetTo == NFILE)
+        args->fdIp = openFile(args->fileArgument);
 }
 
 bool isArgumentValid(const char *arg)
@@ -68,10 +77,10 @@ const char *scanType[] = {"SYN", "NULL", "ACK", "FIN", "XMAS", "UDP"};
 
 static __uint64_t getNumberFromStr(const char *str, const __uint64_t maxRange)
 {
-    triggerErrorNoFreeingIf(isStrDigit(str) == FALSE, "isStrDigit", "Argument isn't only digits.\n");
+    triggerErrorNoFreeingIf(isStrDigit(str) == FALSE, "isStrDigit", "Argument isn't only digits.");
     __uint64_t number = atol(str);
-    triggerErrorNoFreeingIf(number > maxRange, "getNumberFromStr", "Number is above max range.\n");
-    triggerErrorNoFreeingIf(number <= 0, "getNumberFromStr", "Number is below or equal to 0.\n");
+    triggerErrorNoFreeingIf(number > maxRange, "getNumberFromStr", "Number is above max range.");
+    triggerErrorNoFreeingIf(number <= 0, "getNumberFromStr", "Number is below or equal to 0.");
     return number;
 }
 
@@ -81,21 +90,20 @@ void handleOption(const __uint8_t option, const char *str, Args *args)
 {
     static bool destIsDefined = FALSE;
 
-    triggerErrorNoFreeingIf(isArgumentValid(str) == FALSE, "isArgumentValid", "Argument format isn't correct.\n");
+    triggerErrorNoFreeingIf(isArgumentValid(str) == FALSE, "isArgumentValid", "Argument format isn't correct.");
     switch (option)
     {
         case PORTS:
             args->ports = getNumberFromStr(str, MAX_PORT_NUMBER);
         break;
         case NFILE:
-            // triggerErrorNoFreeingIf(open(str, O_RDONLY) < 0, "handleOption", strerror(errno));
-            triggerErrorNoFreeingIf(destIsDefined == TRUE, "handleOption", "Destination was already defined.\n");
+            triggerErrorNoFreeingIf(destIsDefined == TRUE, "handleOption", "Destination was already defined.");
             args->fileArgument = str;
             destIsDefined = TRUE;
         break;
         case IP:
-            triggerErrorNoFreeingIf(destIsDefined == TRUE, "handleOption", "Destination was already defined.\n");
-            triggerErrorNoFreeingIf(setDestinationAddress(&args->ip_addr, str) == FAILURE, "handleOption", "Incorrect destination.\n");
+            triggerErrorNoFreeingIf(destIsDefined == TRUE, "handleOption", "Destination was already defined.");
+            triggerErrorNoFreeingIf(setDestinationAddress(&args->ip_addr, str) == FAILURE, "handleOption", "Incorrect destination.");
             destIsDefined = TRUE;
         break;
         case SPEEDUP:
@@ -110,7 +118,7 @@ void handleOption(const __uint8_t option, const char *str, Args *args)
                     return;
                 }
             }
-            triggerErrorNoFreeingIf(TRUE, "handleOPtion", "Scan option must have one of the following types : SYN, NULL, ACK, FIN, XMAS, UDP.\n");
+            triggerErrorNoFreeingIf(TRUE, "handleOPtion", "Scan option must have one of the following types : SYN, NULL, ACK, FIN, XMAS, UDP.");
         break;
         default:
         break;
@@ -120,7 +128,7 @@ void handleOption(const __uint8_t option, const char *str, Args *args)
 
 void printHelpAndExit()
 {
-    printf("Usage: ft_nmap [--help] [--ports [NUMBER/RANGED]] --ip IP_ADDRESS [--speedup [NUMBER]] [--scan [TYPE]]\n\
+    printf("Usage: ft_nmap [--help] [--ports [NUMBER/RANGED]] --ip IP_ADDRESS [--speedup [NUMBER]] [--scan [TYPE]]\
     ft_nmap [--help] [--ports [NUMBER/RANGED]] --file FILE [--speedup [NUMBER]] [--scan [TYPE]]");
     exit(EXIT_SUCCESS);
 }

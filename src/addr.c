@@ -10,7 +10,7 @@ status resolveFQDN(const char *fqdn, struct sockaddr_in *addr)
     int error = getaddrinfo(fqdn, NULL, &hints, &result);
     if (error != 0)
     {
-        fprintf(stderr, "%s failed: %s\n", fqdn, gai_strerror(error));
+        fprintf(stderr, "%s failed: %s", fqdn, gai_strerror(error));
         return FAILURE;
     }
     memcpy(addr, result->ai_addr, sizeof(struct sockaddr_in));
