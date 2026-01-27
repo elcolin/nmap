@@ -23,7 +23,7 @@ typedef enum {
     FIN, 
     XMAS, 
     UDP,
-    ALL
+    COUNT_SCAN
     
 } ScanType;
 
@@ -31,7 +31,7 @@ typedef struct {
     __uint16_t          ports;
     char                *ipArgument;
     struct sockaddr_in  ip_addr;
-    char                *fileArgument;
+    const char          *fileArgument;
     int                 fdIp;
     __uint8_t           numberOfThreads;
     __uint8_t           scanType;
@@ -44,7 +44,9 @@ typedef enum {
     NFILE,
     IP,
     SPEEDUP,
-    SCAN
+    SCAN,
+    COUNT_OPT
+
 } Options;
 
 void findHelpArgument(const char **argv, const int argc);
