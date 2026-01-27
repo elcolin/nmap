@@ -40,7 +40,7 @@ void scanArguments(const int argc, const char **argv, Args *args)
     triggerErrorNoFreeingIf(destinationIsSet == FALSE, "scanArguments", "No IP or file found.\n");
 }
 
-bool argumentIsValid(const char *arg)
+bool isArgumentValid(const char *arg)
 {
     if (arg == NULL)
         return FALSE;
@@ -50,7 +50,7 @@ bool argumentIsValid(const char *arg)
     return TRUE;
 }
 
-bool strIsDigit(const char *str)
+bool isStrDigit(const char *str)
 {
     const size_t strLength = strlen(str);
     if (!strLength)
