@@ -22,7 +22,7 @@ const char *substr[] = {"--ports", "--file", "--ip", "--speedup", "--scan"};
 
 void scanArguments(const int argc, const char **argv, Args *args)
 {
-    bool destinationIsSet = FALSE;
+    int destinationSet = COUNT_OPT;
     for (int argIdx = 0; argIdx < argc; argIdx++)
     {
         for (int optionIdx = 0; optionIdx < NUMBER_OF_OPTIONS; optionIdx++)
@@ -32,12 +32,13 @@ void scanArguments(const int argc, const char **argv, Args *args)
                 triggerErrorNoFreeingIf(argIdx + 1 >= argc, "scanArguments", "Option requires values pos(\n");
                 handleOption(optionIdx, argv[argIdx + 1], args);
                 if (optionIdx == IP || optionIdx == NFILE)
-                    destinationIsSet = TRUE;
-
+                    destinationSet = optionIdx;
+                break;
             }
         }
+        // TODO add error if arg doesn't exist
     }
-    triggerErrorNoFreeingIf(destinationIsSet == FALSE, "scanArguments", "No IP or file found.\n");
+    triggerErrorNoFreeingIf(destinationSet == COUNT_OPT, "scanArguments", "No IP or file found.\n");
 }
 
 bool isArgumentValid(const char *arg)
@@ -74,8 +75,12 @@ static __uint64_t getNumberFromStr(const char *str, const __uint64_t maxRange)
     return number;
 }
 
+
+
 void handleOption(const __uint8_t option, const char *str, Args *args)
 {
+    static bool destIsDefined = FALSE;
+
     triggerErrorNoFreeingIf(isArgumentValid(str) == FALSE, "isArgumentValid", "Argument format isn't correct.\n");
     switch (option)
     {
@@ -83,9 +88,15 @@ void handleOption(const __uint8_t option, const char *str, Args *args)
             args->ports = getNumberFromStr(str, MAX_PORT_NUMBER);
         break;
         case NFILE:
+            // triggerErrorNoFreeingIf(open(str, O_RDONLY) < 0, "handleOption", strerror(errno));
+            triggerErrorNoFreeingIf(destIsDefined == TRUE, "handleOption", "Destination was already defined.\n");
+            args->fileArgument = str;
+            destIsDefined = TRUE;
         break;
         case IP:
+            triggerErrorNoFreeingIf(destIsDefined == TRUE, "handleOption", "Destination was already defined.\n");
             triggerErrorNoFreeingIf(setDestinationAddress(&args->ip_addr, str) == FAILURE, "handleOption", "Incorrect destination.\n");
+            destIsDefined = TRUE;
         break;
         case SPEEDUP:
             args->numberOfThreads = (__uint8_t) getNumberFromStr(str, MAX_NUMBER_OF_THREADS);
