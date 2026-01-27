@@ -65,18 +65,22 @@ bool isStrDigit(const char *str)
 
 const char *scanType[] = {"SYN", "NULL", "ACK", "FIN", "XMAS", "UDP"};
 
+static __uint64_t getNumberFromStr(const char *str, const __uint64_t maxRange)
+{
+    triggerErrorNoFreeingIf(isStrDigit(str) == FALSE, "isStrDigit", "Argument isn't only digits.\n");
+    __uint64_t number = atol(str);
+    triggerErrorNoFreeingIf(number > maxRange, "getNumberFromStr", "Number is above max range.\n");
+    triggerErrorNoFreeingIf(number <= 0, "getNumberFromStr", "Number is below or equal to 0.\n");
+    return number;
+}
 
 void handleOption(const __uint8_t option, const char *str, Args *args)
 {
-    triggerErrorNoFreeingIf(argumentIsValid(str) == FALSE, "argumentIsValid", "Argument format isn't correct.\n");
+    triggerErrorNoFreeingIf(isArgumentValid(str) == FALSE, "isArgumentValid", "Argument format isn't correct.\n");
     switch (option)
     {
         case PORTS:
-        //refactor SPEEDUP ?
-            triggerErrorNoFreeingIf(strIsDigit(str) == FALSE, "strIsDigit", "Argument isn't only digits.\n");
-            int portNumber = atoi(str);
-            triggerErrorNoFreeingIf(portNumber > MAX_PORT_NUMBER, "handleOption", "Port number is above max range.\n");
-            args->ports = (__uint16_t) portNumber;
+            args->ports = getNumberFromStr(str, MAX_PORT_NUMBER);
         break;
         case NFILE:
         break;
@@ -84,10 +88,7 @@ void handleOption(const __uint8_t option, const char *str, Args *args)
             triggerErrorNoFreeingIf(setDestinationAddress(&args->ip_addr, str) == FAILURE, "handleOption", "Incorrect destination.\n");
         break;
         case SPEEDUP:
-            triggerErrorNoFreeingIf(strIsDigit(str) == FALSE, "strIsDigit", "Argument isn't only digits.\n");
-            int threadNumber = atoi(str);
-            triggerErrorNoFreeingIf(threadNumber > MAX_NUMBER_OF_THREADS, "handleOption", "Thread number is above max range\n");
-            args->numberOfThreads = (__uint8_t) threadNumber;
+            args->numberOfThreads = (__uint8_t) getNumberFromStr(str, MAX_NUMBER_OF_THREADS);
         break;
         case SCAN:
             for (int scanIdx = 0;  scanIdx < NUMBER_OF_SCAN_TYPES; scanIdx++)
