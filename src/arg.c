@@ -9,11 +9,11 @@ void findHelpArgument(const char **argv, const int argc)
     }
 }
 
-void triggerErrorNoFreeingIf(const bool condition, const char *msg, const char *reason)
+void triggerErrorNoFreeingIf(const bool condition, const char *func, const char *reason)
 {
     if (condition)
     {
-        fprintf(stderr, "%s: %s\n", msg, reason);
+        fprintf(stderr, "%s: %s\n", func, reason);
         exit(EXIT_FAILURE);
     }
 }
